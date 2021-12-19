@@ -26,5 +26,12 @@ class MovieSerializer(serializers.ModelSerializer):
             "publication_date",
             "main_author",
             "main_actor",
-            "synopsis",
         )
+
+
+class MovieDetailSerializer(serializers.ModelSerializer):
+    """Um serializer simples"""
+
+    class Meta:
+        model = Movie
+        fields = ("synopsis",)
