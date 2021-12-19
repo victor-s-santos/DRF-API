@@ -15,4 +15,4 @@ class MovieSerializer(serializers.ModelSerializer):
     main_actor = serializers.ReadOnlyField(source="main_actor.name")
     class Meta:
         model = Movie
-        fields = ("title", "category", "publication_date", "main_author", "main_actor")
+        fields = ("title", "category", "publication_date", "main_author", "main_actor", "synopsis")
