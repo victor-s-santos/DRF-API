@@ -3,7 +3,11 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
 from movie.models import Category, Movie
-from movie.serializers import CategorySerializer, MovieSerializer
+from movie.serializers import (
+    CategorySerializer,
+    MovieDetailSerializer,
+    MovieSerializer,
+)
 
 
 class MovieListCreateView(generics.ListCreateAPIView):
@@ -12,6 +16,15 @@ class MovieListCreateView(generics.ListCreateAPIView):
     def get(self, request):
         movies = Movie.objects.all()
         serializer_class = MovieSerializer(movies, many=True)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
+
+
+class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MovieSerializer
+
+    def get(self, request, movie_id=None):
+        movie_detail = Movie.objects.get(id=movie_id)
+        serializer_class = MovieDetailSerializer(movie_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
 
