@@ -6,6 +6,14 @@ from person.models import Actor, Author
 class ActorSerializer(serializers.ModelSerializer):
     """Um serializer simples"""
 
+    class Meta:
+        model = Actor
+        fields = "__all__"
+
+
+class ActorDetailSerializer(serializers.ModelSerializer):
+    """Um serializer simples"""
+
     genre = serializers.ReadOnlyField(source="get_genre_display")
 
     class Meta:

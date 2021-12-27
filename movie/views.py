@@ -20,7 +20,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
 
 
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = MovieSerializer
+    serializer_class = MovieDetailSerializer
 
     def get(self, request, movie_id: int = None):
         movie_detail = Movie.objects.get(id=movie_id)
