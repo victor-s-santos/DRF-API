@@ -55,3 +55,49 @@ class ActorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         actor_detail = Actor.objects.get(id=actor_id)
         serializer_class = ActorDetailSerializer(actor_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, actor_id: int = None):
+        try:
+            name = request.data["name"]
+            genre = request.data["genre"]
+            birth_date = request.data["birth_date"]
+            nationality = request.data["nationality"]
+        except AssertionError as e:
+            return Response(
+                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            actor_detail = Actor.objects.get(id=actor_id)
+        except Actor.DoesNotExist:
+            return Response(
+                f"Actor does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer_class = ActorDetailSerializer(
+            actor_detail, data=request.data, partial=False
+        )
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(
+                serializer_class.data, status=status.HTTP_201_CREATED
+            )
+        return Response(
+            serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request, actor_id: int = None):
+        try:
+            actor_detail = Actor.objects.get(id=actor_id)
+        except Actor.DoesNotExist:
+            return Response(
+                f"Actor does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            actor_detail.delete()
+            return Response(
+                f"Actor has been deleted successfully!",
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
