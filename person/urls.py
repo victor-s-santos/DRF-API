@@ -4,6 +4,7 @@ from person.views import (
     ActorListCreateView,
     ActorRetrieveUpdateDestroyView,
     AuthorListCreateView,
+    AuthorRetrieveUpdateDestroyView,
 )
 
 
@@ -15,4 +16,9 @@ urlpatterns = [
         name="actor_detail",
     ),
     path("author/", AuthorListCreateView.as_view(), name="author"),
+    path(
+        "author/<int:author_id>",
+        AuthorRetrieveUpdateDestroyView.as_view(),
+        name="author_detail",
+    ),
 ]

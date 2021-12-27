@@ -6,6 +6,7 @@ from person.models import Actor, Author
 from person.serializers import (
     ActorDetailSerializer,
     ActorSerializer,
+    AuthorDetailSerializer,
     AuthorSerializer,
 )
 
@@ -26,6 +27,61 @@ class AuthorListCreateView(generics.ListCreateAPIView):
         return Response(
             serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class AuthorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AuthorDetailSerializer
+
+    def get(self, request, author_id: int = None):
+        author_detail = Author.objects.get(id=author_id)
+        serializer_class = AuthorDetailSerializer(author_detail, many=False)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, author_id: int = None):
+        try:
+            name = request.data["name"]
+            genre = request.data["genre"]
+            birth_date = request.data["birth_date"]
+            nationality = request.data["nationality"]
+        except AssertionError as e:
+            return Response(
+                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            author_detail = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(
+                f"Author does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer_class = AuthorDetailSerializer(
+            author_detail, data=request.data, partial=False
+        )
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(
+                serializer_class.data, status=status.HTTP_201_CREATED
+            )
+        return Response(
+            serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request, author_id: int = None):
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(
+                f"Author does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            author.delete()
+            return Response(
+                f"Author has been deleted successfully!",
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class ActorListCreateView(generics.ListCreateAPIView):
