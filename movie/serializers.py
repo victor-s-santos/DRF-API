@@ -14,13 +14,10 @@ class CategorySerializer(serializers.ModelSerializer):
 class MovieSerializer(serializers.ModelSerializer):
     """Um serializer simples"""
 
-    category = serializers.ReadOnlyField(source="category.category_name")
-    main_author = serializers.ReadOnlyField(source="main_author.name")
-    main_actor = serializers.ReadOnlyField(source="main_actor.name")
-
     class Meta:
         model = Movie
         fields = (
+            "id",
             "title",
             "category",
             "publication_date",
@@ -32,6 +29,10 @@ class MovieSerializer(serializers.ModelSerializer):
 class MovieDetailSerializer(serializers.ModelSerializer):
     """Um serializer simples"""
 
+    category = serializers.ReadOnlyField(source="category.category_name")
+    main_author = serializers.ReadOnlyField(source="main_author.name")
+    main_actor = serializers.ReadOnlyField(source="main_actor.name")
+
     class Meta:
         model = Movie
-        fields = ("synopsis",)
+        fields = "__all__"
