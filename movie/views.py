@@ -58,6 +58,25 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
         )
 
+    def delete(self, request, movie_id: int = None):
+        try:
+            movie_detail = Movie.objects.get(id=movie_id)
+            print(movie_detail)
+        except Movie.DoesNotExist:
+            return Response(
+                f"Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            movie_detail.delete()
+            return Response(
+                f"Movie has been deleted successfully!",
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 class CategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
