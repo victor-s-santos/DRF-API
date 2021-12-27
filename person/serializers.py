@@ -24,6 +24,14 @@ class ActorDetailSerializer(serializers.ModelSerializer):
 class AuthorSerializer(serializers.ModelSerializer):
     """Um serializer simples"""
 
+    class Meta:
+        model = Author
+        fields = "__all__"
+
+
+class AuthorDetailSerializer(serializers.ModelSerializer):
+    """Um serializer simples"""
+
     genre = serializers.ReadOnlyField(source="get_genre_display")
 
     class Meta:
