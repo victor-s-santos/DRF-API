@@ -22,10 +22,41 @@ class MovieListCreateView(generics.ListCreateAPIView):
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MovieSerializer
 
-    def get(self, request, movie_id=None):
+    def get(self, request, movie_id: int = None):
         movie_detail = Movie.objects.get(id=movie_id)
         serializer_class = MovieDetailSerializer(movie_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, movie_id: int = None):
+        try:
+            title = request.data["title"]
+            category = request.data["category"]
+            synopsis = request.data["synopsis"]
+            publication_date = request.data["publication_date"]
+            main_actor = request.data["main_actor"]
+            main_author = request.data["main_author"]
+        except AssertionError as e:
+            return Response(
+                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            movie_detail = Movie.objects.get(id=movie_id)
+        except Movie.DoesNotExist:
+            return Response(
+                f"Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer_class = MovieDetailSerializer(
+            movie_detail, data=request.data, partial=False
+        )
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(
+                serializer_class.data, status=status.HTTP_201_CREATED
+            )
+        return Response(
+            serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
