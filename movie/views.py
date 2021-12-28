@@ -16,6 +16,16 @@ class MovieListCreateView(generics.ListCreateAPIView):
     serializer_class = MovieSerializer
 
     def get(self, request) -> Response:
+        filters = self.movie_filters(request)
+        if not filters:
+            movies = Movie.objects.all()
+            serializer_class = MovieSerializer(movies, many=True)
+            return Response(serializer_class.data, status=status.HTTP_200_OK)
+        movies = Movie.objects.filter(filters)
+        serializer_class = MovieSerializer(movies, many=True)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
+
+    def movie_filters(self, request) -> Q:
         title = request.query_params.get("title", None)
         category = request.query_params.get("category", None)
         publication_date = request.query_params.get("publication_date", None)
@@ -24,9 +34,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
             or (category is not None)
             or (publication_date is not None)
         ):
-            movies = Movie.objects.all()
-            serializer_class = MovieSerializer(movies, many=True)
-            return Response(serializer_class.data, status=status.HTTP_200_OK)
+            return False
         filters = Q()
         if title:
             filters &= Q(title=title)
@@ -34,9 +42,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
             filters &= Q(category=category)
         if publication_date:
             filters &= Q(publication_date=publication_date)
-        movies = Movie.objects.filter(filters)
-        serializer_class = MovieSerializer(movies, many=True)
-        return Response(serializer_class.data, status=status.HTTP_200_OK)
+        return filters
 
 
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
