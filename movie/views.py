@@ -16,8 +16,14 @@ class MovieListCreateView(generics.ListCreateAPIView):
     serializer_class = MovieSerializer
 
     def get(self, request) -> Response:
-        filters = self.movie_filters(request)
-        if not filters:
+        movie_filters = self.movie_filters(request)
+        person_filters = self.person_filters(request)
+        filters = Q()
+        if movie_filters:
+            filters &= movie_filters
+        if person_filters:
+            filters &= person_filters
+        elif not movie_filters and not person_filters:
             movies = Movie.objects.all()
             serializer_class = MovieSerializer(movies, many=True)
             return Response(serializer_class.data, status=status.HTTP_200_OK)
@@ -29,14 +35,11 @@ class MovieListCreateView(generics.ListCreateAPIView):
         title = request.query_params.get("title", None)
         category = request.query_params.get("category", None)
         publication_date = request.query_params.get("publication_date", None)
-        actor_name = request.query_params.get("actor_name", None)
-        author_name = request.query_params.get("author_name", None)
+
         if not (
             (title is not None)
             or (category is not None)
             or (publication_date is not None)
-            or (actor_name is not None)
-            or (author_name is not None)
         ):
             return False
         filters = Q()
@@ -46,6 +49,14 @@ class MovieListCreateView(generics.ListCreateAPIView):
             filters &= Q(category=category)
         if publication_date:
             filters &= Q(publication_date=publication_date)
+        return filters
+
+    def person_filters(self, request) -> Q:
+        actor_name = request.query_params.get("actor_name", None)
+        author_name = request.query_params.get("author_name", None)
+        if not ((actor_name is not None) or (author_name is not None)):
+            return False
+        filters = Q()
         if actor_name:
             filters &= Q(main_actor__name=actor_name)
         if author_name:
