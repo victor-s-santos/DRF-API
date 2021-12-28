@@ -132,3 +132,39 @@ class AddActorToMovieView(generics.CreateAPIView):
             movie.main_actor.add(actor)
             movie.save()
         return True
+
+
+class AddAuthorToMovieView(generics.CreateAPIView):
+    serializer_class = MovieSerializer
+
+    def post(self, request, movie_id: int = None) -> Response:
+        try:
+            movie = Movie.objects.get(id=movie_id)
+        except Movie.DoesNotExist:
+            return Response(
+                "Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            author_list = request.data["author_list"]
+            type(author_list) == list
+        except AssertionError as e:
+            return Response(
+                f"Invalid data type: {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            self.add_author(movie_id=movie_id, author_list=author_list)
+            return Response(
+                f"Actors {author_list} has been added successfully to {movie.title}"
+            )
+        except Exception as e:
+            return Response(
+                f"An exception occured {e}!", status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @classmethod
+    def add_author(cls, movie_id: int, author_list: list) -> bool:
+        movie = Movie.objects.get(id=movie_id)
+        for author in author_list:
+            movie.main_author.add(author)
+            movie.save()
+        return True
