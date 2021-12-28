@@ -23,7 +23,12 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MovieDetailSerializer
 
     def get(self, request, movie_id: int = None):
-        movie_detail = Movie.objects.get(id=movie_id)
+        try:
+            movie_detail = Movie.objects.get(id=movie_id)
+        except Movie.DoesNotExist:
+            return Response(
+                "Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
         serializer_class = MovieDetailSerializer(movie_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
@@ -61,7 +66,6 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, movie_id: int = None):
         try:
             movie_detail = Movie.objects.get(id=movie_id)
-            print(movie_detail)
         except Movie.DoesNotExist:
             return Response(
                 f"Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
