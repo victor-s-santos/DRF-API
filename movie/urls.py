@@ -2,6 +2,7 @@ from django.urls import path
 
 from movie.views import (
     AddActorToMovieView,
+    AddAuthorToMovieView,
     CategoryListCreateView,
     MovieListCreateView,
     MovieRetrieveUpdateDestroyView,
@@ -20,5 +21,10 @@ urlpatterns = [
         "add_actor_to_movie/<int:movie_id>/",
         AddActorToMovieView.as_view(),
         name="add_actor_to_movie",
+    ),
+    path(
+        "add_author_to_movie/<int:movie_id>/",
+        AddAuthorToMovieView.as_view(),
+        name="add_author_to_movie",
     ),
 ]
