@@ -29,10 +29,14 @@ class MovieListCreateView(generics.ListCreateAPIView):
         title = request.query_params.get("title", None)
         category = request.query_params.get("category", None)
         publication_date = request.query_params.get("publication_date", None)
+        actor_name = request.query_params.get("actor_name", None)
+        author_name = request.query_params.get("author_name", None)
         if not (
             (title is not None)
             or (category is not None)
             or (publication_date is not None)
+            or (actor_name is not None)
+            or (author_name is not None)
         ):
             return False
         filters = Q()
@@ -42,6 +46,10 @@ class MovieListCreateView(generics.ListCreateAPIView):
             filters &= Q(category=category)
         if publication_date:
             filters &= Q(publication_date=publication_date)
+        if actor_name:
+            filters &= Q(main_actor__name=actor_name)
+        if author_name:
+            filters &= Q(main_author__name=author_name)
         return filters
 
 
