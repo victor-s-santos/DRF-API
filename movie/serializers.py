@@ -27,12 +27,23 @@ class MovieSerializer(serializers.ModelSerializer):
 
 
 class MovieDetailSerializer(serializers.ModelSerializer):
-    """Um serializer simples"""
 
     category = serializers.ReadOnlyField(source="category.category_name")
-    main_author = serializers.ReadOnlyField(source="main_author.name")
-    main_actor = serializers.ReadOnlyField(source="main_actor.name")
+    main_author = serializers.SerializerMethodField("get_main_author")
+    main_actor = serializers.SerializerMethodField("get_main_actor")
+
+    def get_main_actor(self, object):
+        movie = Movie.objects.get(id=object.id)
+        list_actors = []
+        for actor in movie.main_actor.all():
+            list_actors.append(actor.name)
+        return list_actors
+
+    def get_main_author(self, object):
+        """The same as above but using list comprehension"""
+        movie = Movie.objects.get(id=object.id)
+        return [author.name for author in movie.main_author.all()]
 
     class Meta:
         model = Movie
-        fields = "__all__"
+        fields = ("category", "main_author", "main_actor")
