@@ -85,6 +85,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             publication_date = request.data["publication_date"]
             main_actor = request.data["main_actor"]
             main_author = request.data["main_author"]
+            score = request.data["score"]
         except AssertionError as e:
             return Response(
                 f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
