@@ -23,6 +23,7 @@ class MovieSerializer(serializers.ModelSerializer):
             "publication_date",
             "main_author",
             "main_actor",
+            "score",
         )
 
 
@@ -46,4 +47,4 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ("category", "main_author", "main_actor")
+        fields = ("category", "main_author", "main_actor", "score")
