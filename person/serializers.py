@@ -26,7 +26,14 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Author
-        fields = "__all__"
+        fields = (
+            "id",
+            "name",
+            "genre",
+            "birth_date",
+            "nationality",
+            "score_average",
+        )
 
 
 class AuthorDetailSerializer(serializers.ModelSerializer):
