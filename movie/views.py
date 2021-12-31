@@ -37,18 +37,11 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
     def patch(self, request, movie_id: int = None) -> Response:
-        try:
-            title = request.data["title"]
-            category = request.data["category"]
-            synopsis = request.data["synopsis"]
-            publication_date = request.data["publication_date"]
-            main_actor = request.data["main_actor"]
-            main_author = request.data["main_author"]
-        except AssertionError as e:
+        if not self.verify_request(request):
             return Response(
-                f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
+                f"No field has been informed!",
+                status=status.HTTP_400_BAD_REQUEST,
             )
-
         try:
             movie_detail = Movie.objects.get(id=movie_id)
         except Movie.DoesNotExist:
@@ -56,7 +49,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 f"Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
             )
         serializer_class = MovieDetailSerializer(
-            movie_detail, data=request.data, partial=False
+            movie_detail, data=request.data, partial=True
         )
         if serializer_class.is_valid():
             serializer_class.save()
@@ -84,6 +77,31 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return Response(
                 f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
             )
+
+    @classmethod
+    def verify_request(cls, request):
+        if request.method == "POST":
+            if (
+                "title" not in request.data
+                or "category" not in request.data
+                or "synopsis" not in request.data
+                or "publication_date" not in request.data
+                or "main_actor" not in request.data
+                or "main_author" not in request.data
+            ):
+                return False
+            return True
+        if request.method == "PATCH":
+            if (
+                "title" not in request.data
+                and "category" not in request.data
+                and "synopsis" not in request.data
+                and "publication_date" not in request.data
+                and "main_actor" not in request.data
+                and "main_author" not in request.data
+            ):
+                return False
+            return True
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
