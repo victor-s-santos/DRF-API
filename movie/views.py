@@ -15,6 +15,10 @@ class MovieListCreateView(generics.ListCreateAPIView):
 
     def get(self, request) -> Response:
         movies = Movie.objects.all()
+        if len(movies) == 0:
+            return Response(
+                "There is no movie in the database!", status=status.HTTP_200_OK
+            )
         serializer_class = MovieSerializer(movies, many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
