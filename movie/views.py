@@ -109,6 +109,10 @@ class CategoryListCreateView(generics.ListCreateAPIView):
 
     def get(self, request) -> Response:
         categories = Category.objects.all()
+        if len(categories) == 0:
+            return Response(
+                "There is no movie in the database!", status=status.HTTP_200_OK
+            )
         serializer_class = CategorySerializer(categories, many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
