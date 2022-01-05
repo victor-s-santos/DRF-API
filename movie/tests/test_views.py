@@ -1,7 +1,6 @@
 from django.urls import reverse
 
 import pytest
-from _pytest.fixtures import fixture
 
 
 path_list_200 = [("movies", 200), ("categories", 200)]
@@ -29,7 +28,7 @@ class Test_get_request:
         url = reverse(path)
         assert api_client.get(url).data == "There is no movie in the database!"
 
-    @fixture
+    @pytest.fixture
     @pytest.mark.django_db
     def test_post_category(self, api_client):
         url = reverse("categories")
