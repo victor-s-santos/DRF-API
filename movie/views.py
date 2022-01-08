@@ -10,8 +10,47 @@ from movie.serializers import (
 )
 
 
+def verify_request(request):
+    if request.method == "POST":
+        if (
+            "title" not in request.data
+            or "category" not in request.data
+            or "synopsis" not in request.data
+            or "publication_date" not in request.data
+            or "main_actor" not in request.data
+            or "main_author" not in request.data
+        ):
+            return False
+        return True
+    if request.method == "PATCH":
+        if (
+            "title" not in request.data
+            and "category" not in request.data
+            and "synopsis" not in request.data
+            and "publication_date" not in request.data
+            and "main_actor" not in request.data
+            and "main_author" not in request.data
+        ):
+            return False
+        return True
+
+
 class MovieListCreateView(generics.ListCreateAPIView):
     serializer_class = MovieSerializer
+
+    def post(self, request) -> Response:
+        if verify_request(request):
+            serializer = MovieSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            return Response(
+                f"Invalid Request!", status=status.HTTP_400_BAD_REQUEST
+            )
 
     def get(self, request) -> Response:
         movies = Movie.objects.all()
@@ -77,31 +116,6 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return Response(
                 f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
             )
-
-    @classmethod
-    def verify_request(cls, request):
-        if request.method == "POST":
-            if (
-                "title" not in request.data
-                or "category" not in request.data
-                or "synopsis" not in request.data
-                or "publication_date" not in request.data
-                or "main_actor" not in request.data
-                or "main_author" not in request.data
-            ):
-                return False
-            return True
-        if request.method == "PATCH":
-            if (
-                "title" not in request.data
-                and "category" not in request.data
-                and "synopsis" not in request.data
-                and "publication_date" not in request.data
-                and "main_actor" not in request.data
-                and "main_author" not in request.data
-            ):
-                return False
-            return True
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
