@@ -76,7 +76,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
     def patch(self, request, movie_id: int = None) -> Response:
-        if not self.verify_request(request):
+        if not verify_request(request):
             return Response(
                 f"No field has been informed!",
                 status=status.HTTP_400_BAD_REQUEST,
