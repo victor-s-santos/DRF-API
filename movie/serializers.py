@@ -72,3 +72,17 @@ class NestedPersonFilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ("author_name", "author_genre")
+
+
+class MoviePersonDetailSerializer(serializers.ModelSerializer):
+
+    category = serializers.ReadOnlyField(source="category.category_name")
+    person = serializers.SerializerMethodField("get_person")
+
+    def get_person(self, object):
+        movie = Movie.objects.get(id=object.id)
+        return NestedPersonFilterSerializer(movie, many=False).data
+
+    class Meta:
+        model = Movie
+        fields = ("title", "category", "person")
