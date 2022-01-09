@@ -5,6 +5,7 @@ from movie.views import (
     AddAuthorToMovieView,
     CategoryListCreateView,
     MovieListCreateView,
+    MoviePersonDetailRetrieveView,
     MovieRetrieveUpdateDestroyView,
 )
 
@@ -26,5 +27,10 @@ urlpatterns = [
         "add_author_to_movie/<int:movie_id>/",
         AddAuthorToMovieView.as_view(),
         name="add_author_to_movie",
+    ),
+    path(
+        "movie_person/<int:movie_id>/",
+        MoviePersonDetailRetrieveView.as_view(),
+        name="movie_person",
     ),
 ]
