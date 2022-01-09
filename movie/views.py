@@ -9,6 +9,7 @@ from movie.serializers import (
     CategorySerializer,
     MovieDetailSerializer,
     MovieSerializer,
+    NestedPersonFilterSerializer,
 )
 
 
@@ -243,3 +244,19 @@ class AddAuthorToMovieView(generics.CreateAPIView):
             movie.main_author.add(author)
             movie.save()
         return True
+
+
+class MoviePersonDetailRetrieveView(generics.RetrieveAPIView):
+    serializer_class = NestedPersonFilterSerializer
+
+    def get(self, request, movie_id: int = None) -> Response:
+        try:
+            movie_person_detail = Movie.objects.get(id=movie_id)
+        except Movie.DoesNotExist:
+            return Response(
+                "Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer_class = NestedPersonFilterSerializer(
+            movie_person_detail, many=False
+        )
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
