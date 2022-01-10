@@ -54,6 +54,7 @@ class NestedPersonFilterSerializer(serializers.ModelSerializer):
 
     author_name = serializers.SerializerMethodField("get_author_name")
     author_genre = serializers.SerializerMethodField("get_author_genre")
+    author_score = serializers.SerializerMethodField("get_author_score")
 
     def get_author_name(self, object):
         movie = Movie.objects.get(id=object.id)
@@ -69,9 +70,16 @@ class NestedPersonFilterSerializer(serializers.ModelSerializer):
             list_authors.append(author.get_genre_display())
         return list_authors
 
+    def get_author_score(self, object):
+        movie = Movie.objects.get(id=object.id)
+        list_authors = []
+        for author in movie.main_author.all():
+            list_authors.append(author.score_average)
+        return list_authors
+
     class Meta:
         model = Movie
-        fields = ("author_name", "author_genre")
+        fields = ("author_name", "author_genre", "author_score")
 
 
 class MoviePersonDetailSerializer(serializers.ModelSerializer):
