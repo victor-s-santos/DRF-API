@@ -25,6 +25,15 @@ class AuthorSerializer(serializers.ModelSerializer):
     """Um serializer simples"""
 
     genre = serializers.ReadOnlyField(source="get_genre_display")
+    movies = serializers.SerializerMethodField(source="get_movies")
+
+    def get_movies(self, obj):
+        author = obj
+        movies = author.movie_set
+        movie_list = []
+        for movie in movies.all():
+            movie_list.append(movie.title)
+        return movie_list
 
     class Meta:
         model = Author
@@ -35,6 +44,7 @@ class AuthorSerializer(serializers.ModelSerializer):
             "birth_date",
             "nationality",
             "score_average",
+            "movies",
         )
 
 
