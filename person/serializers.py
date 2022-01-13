@@ -33,8 +33,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         movie_list = []
         for movie in movies.all():
             movie_list.append(movie.title)
-        return movie_list
-        # return [movie.title for movie in author.movie_set.all()]
+        return [movie.title for movie in author.movie_set.all()]
 
     class Meta:
         model = Author
@@ -44,8 +43,8 @@ class AuthorSerializer(serializers.ModelSerializer):
             "genre",
             "birth_date",
             "nationality",
-            "score_average",
             "movies",
+            "score_average",
         )
 
 
