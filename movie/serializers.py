@@ -8,7 +8,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("category_name",)
+        fields = (
+            "id",
+            "category_name",
+        )
 
 
 class MovieSerializer(serializers.ModelSerializer):
@@ -47,7 +50,7 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ("category", "main_author", "main_actor", "score")
+        fields = ("title", "category", "main_author", "main_actor", "score")
 
 
 class NestedPersonFilterSerializer(serializers.ModelSerializer):
