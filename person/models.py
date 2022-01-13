@@ -17,8 +17,8 @@ class Author(models.Model):
             list_score = [movie.score for movie in movies]
             avg_score = sum(list_score) / len(list_score)
             return avg_score
-        except Exception as e:
-            return "An error occured! {e}"
+        except Exception:
+            return "There is not a movie for this author!"
 
 
 class Actor(models.Model):
