@@ -29,10 +29,6 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_movies(self, obj):
         author = obj
-        movies = author.movie_set
-        movie_list = []
-        for movie in movies.all():
-            movie_list.append(movie.title)
         return [movie.title for movie in author.movie_set.all()]
 
     class Meta:
