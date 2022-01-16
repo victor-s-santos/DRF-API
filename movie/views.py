@@ -88,12 +88,26 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 f"Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
             )
         try:
+            category = request.data["category_id"]
             author = request.data["author_id"]
             actor = request.data["actor_id"]
+            movie_detail.category = Category.objects.get(id=category)
             movie_detail.main_author.clear()
             movie_detail.main_actor.clear()
             movie_detail.main_author.add(author)
             movie_detail.main_actor.add(actor)
+            context = {
+                "title": Movie.objects.get(id=movie_id).title,
+                "category": Movie.objects.get(
+                    id=movie_id
+                ).category.category_name,
+                "actor": Movie.objects.get(id=movie_id)
+                .main_actor.all()[0]
+                .name,
+                "author": Movie.objects.get(id=movie_id)
+                .main_author.all()[0]
+                .name,
+            }
         except Exception as e:
             return Response(
                 "An error has occurred" + str(e),
@@ -104,9 +118,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         )
         if serializer_class.is_valid():
             serializer_class.save()
-            return Response(
-                serializer_class.data, status=status.HTTP_201_CREATED
-            )
+            return Response(context, status=status.HTTP_201_CREATED)
         return Response(
             serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
         )
