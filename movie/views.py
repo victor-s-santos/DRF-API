@@ -107,6 +107,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 or Movie.objects.get(id=movie_id).category.category_name,
                 "synopsis": request.query_params.get("synopsis", None)
                 or Movie.objects.get(id=movie_id).synopsis,
+
                 "actor": Movie.objects.get(id=movie_id)
                 .main_actor.all()[0]
                 .name,
