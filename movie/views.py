@@ -25,11 +25,11 @@ def verify_request(request):
     if request.method == "PATCH":
         if (
             "title" not in request.data
-            and "category" not in request.data
+            and "category_id" not in request.data
             and "synopsis" not in request.data
             and "publication_date" not in request.data
-            and "main_actor" not in request.data
-            and "main_author" not in request.data
+            and "author_id" not in request.data
+            and "actor_id" not in request.data
         ):
             return False
         return True
@@ -88,19 +88,25 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 f"Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
             )
         try:
-            category = request.data["category_id"]
-            author = request.data["author_id"]
-            actor = request.data["actor_id"]
-            movie_detail.category = Category.objects.get(id=category)
-            movie_detail.main_author.clear()
-            movie_detail.main_actor.clear()
-            movie_detail.main_author.add(author)
-            movie_detail.main_actor.add(actor)
+            if request.data["category_id"]:
+                category = request.data["category_id"]
+                movie_detail.category = Category.objects.get(id=category)
+            if request.data["author_id"]:
+                author = request.data["author_id"]
+                movie_detail.main_author.clear()
+                movie_detail.main_author.add(author)
+            if request.data["actor_id"]:
+                actor = request.data["actor_id"]
+                movie_detail.main_actor.clear()
+                movie_detail.main_actor.add(actor)
+            # create the context to return the updated actor and author
             context = {
-                "title": Movie.objects.get(id=movie_id).title,
-                "category": Movie.objects.get(
-                    id=movie_id
-                ).category.category_name,
+                "title": request.query_params.get("title", None)
+                or Movie.objects.get(id=movie_id).title,
+                "category": Category.objects.get(id=category).category_name
+                or Movie.objects.get(id=movie_id).category.category_name,
+                "synopsis": request.query_params.get("synopsis", None)
+                or Movie.objects.get(id=movie_id).synopsis,
                 "actor": Movie.objects.get(id=movie_id)
                 .main_actor.all()[0]
                 .name,
