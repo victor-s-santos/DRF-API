@@ -4,6 +4,7 @@ from django.urls import reverse
 
 import pytest
 
+from movie.models import Movie
 from person.models import Actor, Author
 
 
@@ -17,7 +18,7 @@ path_list_empty_content = [
 path_list_content = [("categories", "Category Test")]
 
 
-class Test_get_request:
+class Test_get_post_and_patch_request:
     @pytest.mark.django_db
     @pytest.mark.parametrize("path, status_code", path_list_200)
     def test_get_movie_endpoints(self, api_client, path, status_code):
@@ -70,3 +71,31 @@ class Test_get_request:
             Author.objects.get(id=response.data["main_author"][0]).name
             == "Author Test"
         )
+
+    @pytest.mark.django_db
+    def test_patch_movie(
+        self, api_client, movie_obj, category_obj2, author_obj2, actor_obj2
+    ):
+        url = reverse("movie_detail", args=[str(movie_obj.id)])
+        movie_before_patch = movie_obj
+        data = {
+            "title": "Title test",
+            "category_id": category_obj2.id,
+            "synopsis": "Test synopsis2",
+            "author_id": author_obj2.id,
+            "actor_id": actor_obj2.id,
+            "publication_date": date.today(),
+        }
+        response = api_client.patch(url, data, format="json")
+        movie_after_patch = Movie.objects.get(id=movie_obj.id)
+        assert response.status_code == 201
+        # --Movie object after patch--#
+        assert movie_after_patch.title == "Title test"
+        assert (
+            movie_after_patch.category.category_name
+            == category_obj2.category_name
+        )
+        assert movie_after_patch.synopsis == "Test synopsis2"
+        assert movie_after_patch.main_author.all()[0].name == author_obj2.name
+        assert movie_after_patch.main_actor.all()[0].name == actor_obj2.name
+        assert movie_after_patch.publication_date == date.today()
