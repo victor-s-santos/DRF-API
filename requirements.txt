@@ -7,6 +7,7 @@ decorator==5.1.1
 Django==3.1
 django-extensions==3.1.5
 djangorestframework==3.13.1
+django-seed
 factory-boy==3.2.1
 Faker==11.1.0
 iniconfig==1.1.1
@@ -39,3 +40,4 @@ tomli==1.2.3
 traitlets==5.1.1
 typing-extensions==4.0.1
 wcwidth==0.2.5
+psycopg2-binary==2.8.6
