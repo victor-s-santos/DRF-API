@@ -43,4 +43,4 @@ class AuthorDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Author
-        fields = ("name", "genre", "birth_date", "nationality")
+        fields = ("name", "genre", "birth_date", "nationality", "score_average")
