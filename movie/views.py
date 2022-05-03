@@ -244,12 +244,7 @@ class AddAuthorToMovieView(generics.CreateAPIView):
 class MovieStatisticView(generics.RetrieveAPIView):
     serializer_class = MovieStatisticSerializer
 
-    def get(self, request, movie_id: int = None) -> Response:
-        try:
-            movie_detail = Movie.objects.get(id=movie_id)
-        except Movie.DoesNotExist:
-            return Response(
-                "Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
-            )
-        serializer_class = MovieStatisticSerializer(movie_detail, many=False)
+    def get(self, request) -> Response:
+        movies = Movie.objects.all()
+        serializer_class = MovieStatisticSerializer(movies, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
