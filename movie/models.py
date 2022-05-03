@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from person.models import Actor, Author
@@ -14,3 +15,7 @@ class Movie(models.Model):
     publication_date = models.DateField()
     main_actor = models.ManyToManyField(Actor)
     main_author = models.ManyToManyField(Author)
+    score = models.FloatField(
+        default=5.0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(10.0)],
+    )
