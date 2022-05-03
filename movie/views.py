@@ -7,6 +7,7 @@ from movie.serializers import (
     CategorySerializer,
     MovieDetailSerializer,
     MovieSerializer,
+    MovieStatisticSerializer,
 )
 
 
@@ -238,3 +239,17 @@ class AddAuthorToMovieView(generics.CreateAPIView):
             movie.main_author.add(author)
             movie.save()
         return True
+
+
+class MovieStatisticView(generics.RetrieveAPIView):
+    serializer_class = MovieStatisticSerializer
+
+    def get(self, request, movie_id: int = None) -> Response:
+        try:
+            movie_detail = Movie.objects.get(id=movie_id)
+        except Movie.DoesNotExist:
+            return Response(
+                "Movie does not exist!", status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer_class = MovieStatisticSerializer(movie_detail, many=False)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)

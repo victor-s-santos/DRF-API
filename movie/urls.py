@@ -6,10 +6,14 @@ from movie.views import (
     CategoryListCreateView,
     MovieListCreateView,
     MovieRetrieveUpdateDestroyView,
+    MovieStatisticView,
 )
 
 
 urlpatterns = [
+    path(
+        "movie_statistic/", MovieStatisticView.as_view(), name="statistic_movie"
+    ),
     path("", MovieListCreateView.as_view(), name="movies"),
     path(
         "<int:movie_id>/",

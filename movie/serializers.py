@@ -54,3 +54,7 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = "__all__"
+
+
+class MovieStatisticSerializer(serializers.ModelSerializer):
+    """Um serializers para trazer dados estatísticos"""
