@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
@@ -39,6 +41,38 @@ def verify_request(request):
 class MovieListCreateView(generics.ListCreateAPIView):
     serializer_class = MovieSerializer
 
+    def movie_filters(self, request) -> Q:
+        title = request.query_params.get("title", None)
+        category = request.query_params.get("category", None)
+        publication_date = request.query_params.get("publication_date", None)
+
+        if not (
+            (title is not None)
+            or (category is not None)
+            or (publication_date is not None)
+        ):
+            return False
+        filters = Q()
+        if title:
+            filters &= Q(title=title)
+        if category:
+            filters &= Q(category=category)
+        if publication_date:
+            filters &= Q(publication_date=publication_date)
+        return filters
+
+    def person_filters(self, request) -> Q:
+        actor_name = request.query_params.get("actor_name", None)
+        author_name = request.query_params.get("author_name", None)
+        if not ((actor_name is not None) or (author_name is not None)):
+            return False
+        filters = Q()
+        if actor_name:
+            filters &= Q(main_actor__name=actor_name)
+        if author_name:
+            filters &= Q(main_author__name=author_name)
+        return filters
+
     def post(self, request) -> Response:
         if verify_request(request):
             serializer = MovieSerializer(data=request.data)
@@ -54,11 +88,26 @@ class MovieListCreateView(generics.ListCreateAPIView):
             )
 
     def get(self, request) -> Response:
-        movies = Movie.objects.all()
-        if len(movies) == 0:
+        movie_filters = self.movie_filters(request)
+        person_filters = self.person_filters(request)
+        filters_person = Q()
+        filters_movie = Q()
+        if movie_filters:
+            filters_movie &= movie_filters
+        if person_filters:
+            filters_person &= person_filters
+        elif not movie_filters and not person_filters:
+            if Movie.objects.all().count() != 0:
+                movies = Movie.objects.all()
+                serializer_class = MovieSerializer(movies, many=True)
+                return Response(
+                    serializer_class.data, status=status.HTTP_200_OK
+                )
             return Response(
                 "There is no movie in the database!", status=status.HTTP_200_OK
             )
+        movies = Movie.objects.filter(filters_movie, filters_person)
+        # movies = Movie.objects.filter(filters_movie | filters_person)
         serializer_class = MovieSerializer(movies, many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
