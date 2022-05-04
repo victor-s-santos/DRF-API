@@ -16,6 +16,5 @@ class Movie(models.Model):
     main_actor = models.ManyToManyField(Actor)
     main_author = models.ManyToManyField(Author)
     score = models.FloatField(
-        default=5.0,
         validators=[MinValueValidator(0.0), MaxValueValidator(10.0)],
     )
