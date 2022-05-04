@@ -22,6 +22,7 @@ def verify_request(request):
             or "publication_date" not in request.data
             or "main_actor" not in request.data
             or "main_author" not in request.data
+            or "score" not in request.data
         ):
             return False
         return True

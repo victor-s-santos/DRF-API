@@ -1,6 +1,6 @@
 import json
 
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Min
 
 from rest_framework import serializers
 
@@ -25,9 +25,11 @@ class MovieSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "category",
+            "synopsis",
             "publication_date",
             "main_author",
             "main_actor",
+            "score",
         )
 
 
@@ -63,8 +65,25 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
     """Um serializers para trazer dados estatísticos"""
 
     amount_movies_category = serializers.SerializerMethodField()
+    best_movies_category = serializers.SerializerMethodField()
+    worst_movies_caterogy = serializers.SerializerMethodField()
+
+    def get_worst_movies_caterogy(self, obj):
+        """Retorna a pior nota de cada categoria"""
+        movies = Movie.objects.values("category").annotate(
+            worst_movie=Min("score")
+        )
+        return movies
+
+    def get_best_movies_category(self, obj):
+        """Retorna a melhor nota de cada categoria"""
+        movies = Movie.objects.values("category").annotate(
+            best_movie=Max("score")
+        )
+        return movies
 
     def get_amount_movies_category(self, obj):
+        """Retorna o número de filmes cadastrado de cada categoria"""
         movies = Movie.objects.values("category").annotate(
             amount=Count("title")
         )
@@ -72,4 +91,8 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ("amount_movies_category",)
+        fields = (
+            "amount_movies_category",
+            "best_movies_category",
+            "worst_movies_caterogy",
+        )
