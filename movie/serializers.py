@@ -67,7 +67,7 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
 
     amount_movies_category = serializers.SerializerMethodField()
     best_movies_category = serializers.SerializerMethodField()
-    worst_movies_caterogy = serializers.SerializerMethodField()
+    worst_movies_category = serializers.SerializerMethodField()
     general_standard_deviation = serializers.SerializerMethodField()
 
     def get_general_standard_deviation(self, obj):
@@ -77,7 +77,7 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
         )
         return movies
 
-    def get_worst_movies_caterogy(self, obj):
+    def get_worst_movies_category(self, obj):
         """Retorna a pior nota de cada categoria"""
         movies = Movie.objects.values(
             "category__category_name", "title"
@@ -86,9 +86,14 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
 
     def get_best_movies_category(self, obj):
         """Retorna a melhor nota de cada categoria"""
-        movies = Movie.objects.values(
-            "category__category_name", "title"
-        ).annotate(best_movie=Max("score"))
+        qs = (
+            Movie.objects.all()
+            .order_by("category", "-score")
+            .distinct("category")
+        )
+        movies = qs.values("category__category_name", "title").annotate(
+            best_movie=Max("score")
+        )
         return movies
 
     def get_amount_movies_category(self, obj):
@@ -103,6 +108,6 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
         fields = (
             "amount_movies_category",
             "best_movies_category",
-            "worst_movies_caterogy",
+            "worst_movies_category",
             "general_standard_deviation",
         )
