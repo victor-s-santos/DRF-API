@@ -79,16 +79,16 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
 
     def get_worst_movies_caterogy(self, obj):
         """Retorna a pior nota de cada categoria"""
-        movies = Movie.objects.values("category__category_name").annotate(
-            worst_movie=Min("score")
-        )
+        movies = Movie.objects.values(
+            "category__category_name", "title"
+        ).annotate(worst_movie=Min("score"))
         return movies
 
     def get_best_movies_category(self, obj):
         """Retorna a melhor nota de cada categoria"""
-        movies = Movie.objects.values("category__category_name").annotate(
-            best_movie=Max("score")
-        )
+        movies = Movie.objects.values(
+            "category__category_name", "title"
+        ).annotate(best_movie=Max("score"))
         return movies
 
     def get_amount_movies_category(self, obj):
