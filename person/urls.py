@@ -5,6 +5,7 @@ from person.views import (
     ActorRetrieveUpdateDestroyView,
     AuthorListCreateView,
     AuthorRetrieveUpdateDestroyView,
+    AuthorStatisticView,
 )
 
 
@@ -21,4 +22,5 @@ urlpatterns = [
         AuthorRetrieveUpdateDestroyView.as_view(),
         name="author_detail",
     ),
+    path("author_statistic/", AuthorStatisticView.as_view(), name="statistic"),
 ]

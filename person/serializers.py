@@ -1,3 +1,5 @@
+from django.db.models import Max
+
 from rest_framework import serializers
 
 from movie.models import Movie
@@ -44,3 +46,22 @@ class AuthorDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
         fields = ("name", "genre", "birth_date", "nationality", "score_average")
+
+
+class AuthorStatisticSerializer(serializers.ModelSerializer):
+    """Um serializer para trazer valores estatísticos"""
+
+    author_best_movie = serializers.SerializerMethodField()
+
+    def get_author_best_movie(self, obj):
+        """Retorna o filme de maior score para cada autor"""
+        movies = (
+            Movie.objects.values("title", "main_author__name")
+            .annotate(best_movie=Max("score"))
+            .order_by("-best_movie", "title")
+        )
+        return movies
+
+    class Meta:
+        model = Author
+        fields = ("author_best_movie",)

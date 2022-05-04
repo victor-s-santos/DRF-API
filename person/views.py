@@ -2,12 +2,14 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
+from movie.models import Movie
 from person.models import Actor, Author
 from person.serializers import (
     ActorDetailSerializer,
     ActorSerializer,
     AuthorDetailSerializer,
     AuthorSerializer,
+    AuthorStatisticSerializer,
 )
 
 
@@ -157,3 +159,12 @@ class ActorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return Response(
                 f"An error occured {e}!", status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class AuthorStatisticView(generics.RetrieveAPIView):
+    serializer_class = AuthorStatisticSerializer
+
+    def get(self, request) -> Response:
+        movies = Movie.objects.all()
+        serializer_class = AuthorStatisticSerializer(movies, many=False)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
