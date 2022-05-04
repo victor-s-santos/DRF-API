@@ -1,6 +1,11 @@
+import json
+
+from django.db.models import Count, Max
+
 from rest_framework import serializers
 
 from movie.models import Category, Movie
+from person.models import Actor, Author
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -32,7 +37,39 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     category = serializers.ReadOnlyField(source="category.category_name")
     main_author = serializers.ReadOnlyField(source="main_author.name")
     main_actor = serializers.ReadOnlyField(source="main_actor.name")
+    amount_author_female = serializers.SerializerMethodField()
+    amount_author_male = serializers.SerializerMethodField()
+
+    def get_amount_author_female(self, obj):
+        """Retorna o número de autores do sexo feminino para este filme"""
+        amount_author = Movie.objects.filter(
+            id=obj.id, main_author__genre=1
+        ).aggregate(Count("main_author"))
+        return amount_author
+
+    def get_amount_author_male(self, obj):
+        """Retorna o número de autores do sexo masculino para este filme"""
+        amount_author = Movie.objects.filter(
+            id=obj.id, main_author__genre=2
+        ).aggregate(Count("main_author"))
+        return amount_author
 
     class Meta:
         model = Movie
         fields = "__all__"
+
+
+class MovieStatisticSerializer(serializers.ModelSerializer):
+    """Um serializers para trazer dados estatísticos"""
+
+    amount_movies_category = serializers.SerializerMethodField()
+
+    def get_amount_movies_category(self, obj):
+        movies = Movie.objects.values("category").annotate(
+            amount=Count("title")
+        )
+        return movies
+
+    class Meta:
+        model = Movie
+        fields = ("amount_movies_category",)

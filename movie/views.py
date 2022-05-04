@@ -7,6 +7,7 @@ from movie.serializers import (
     CategorySerializer,
     MovieDetailSerializer,
     MovieSerializer,
+    MovieStatisticSerializer,
 )
 
 
@@ -238,3 +239,12 @@ class AddAuthorToMovieView(generics.CreateAPIView):
             movie.main_author.add(author)
             movie.save()
         return True
+
+
+class MovieStatisticView(generics.RetrieveAPIView):
+    serializer_class = MovieStatisticSerializer
+
+    def get(self, request) -> Response:
+        movies = Movie.objects.all()
+        serializer_class = MovieStatisticSerializer(movies, many=False)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
