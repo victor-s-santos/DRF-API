@@ -1,6 +1,6 @@
 import json
 
-from django.db.models import Count, Max, Min
+from django.db.models import Count
 from django.db.models.aggregates import StdDev
 
 from rest_framework import serializers
