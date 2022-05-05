@@ -74,7 +74,7 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
     def get_standard_deviation_by_category(self, obj):
         """Retorna o desvio padrão de score por categoria"""
         movies = Movie.objects.values("category__category_name").annotate(
-            Standard_deviation=StdDev("score", "category__category_name")
+            Standard_deviation=StdDev("score")
         )
         for movie in movies:
             if not (movie["Standard_deviation"]):
