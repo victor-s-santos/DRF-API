@@ -69,6 +69,17 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
     best_movies_category = serializers.SerializerMethodField()
     worst_movies_category = serializers.SerializerMethodField()
     general_standard_deviation = serializers.SerializerMethodField()
+    standard_deviation_by_category = serializers.SerializerMethodField()
+
+    def get_standard_deviation_by_category(self, obj):
+        """Retorna o desvio padrão de score por categoria"""
+        movies = Movie.objects.values("category__category_name").annotate(
+            Standard_deviation=StdDev("score", "category__category_name")
+        )
+        for movie in movies:
+            if not (movie["Standard_deviation"]):
+                movie["Standard_deviation"] = 0
+        return movies
 
     def get_general_standard_deviation(self, obj):
         """Retorna o desvio padrão de score"""
@@ -109,4 +120,5 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
             "best_movies_category",
             "worst_movies_category",
             "general_standard_deviation",
+            "standard_deviation_by_category",
         )
