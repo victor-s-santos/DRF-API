@@ -1,4 +1,4 @@
-from django.db.models import Max
+from django.db.models.aggregates import StdDev
 
 from rest_framework import serializers
 
@@ -53,6 +53,17 @@ class AuthorStatisticSerializer(serializers.ModelSerializer):
 
     author_best_movie = serializers.SerializerMethodField()
     author_worst_movie = serializers.SerializerMethodField()
+    standard_deviation_by_author = serializers.SerializerMethodField()
+
+    def get_standard_deviation_by_author(self, obj):
+        """Retorna o desvio padrão de score por autor"""
+        movies = Movie.objects.values("main_author__name").annotate(
+            Standard_deviation=StdDev("score")
+        )
+        for movie in movies:
+            if not (movie["Standard_deviation"]):
+                movie["Standard_deviation"] = 0
+        return movies
 
     def get_author_worst_movie(self, obj):
         """Retorna o filme de menor score para cada combinação autor categoria"""
@@ -78,4 +89,8 @@ class AuthorStatisticSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Author
-        fields = ("author_best_movie", "author_worst_movie")
+        fields = (
+            "author_best_movie",
+            "author_worst_movie",
+            "standard_deviation_by_author",
+        )
