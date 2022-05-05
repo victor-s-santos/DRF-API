@@ -52,16 +52,30 @@ class AuthorStatisticSerializer(serializers.ModelSerializer):
     """Um serializer para trazer valores estatísticos"""
 
     author_best_movie = serializers.SerializerMethodField()
+    author_worst_movie = serializers.SerializerMethodField()
+
+    def get_author_worst_movie(self, obj):
+        """Retorna o filme de menor score para cada combinação autor categoria"""
+        movies = (
+            Movie.objects.values(
+                "category__category_name", "title", "main_author__name", "score"
+            )
+            .order_by("category", "main_author__name", "score")
+            .distinct("category", "main_author__name")
+        )
+        return movies
 
     def get_author_best_movie(self, obj):
-        """Retorna o filme de maior score para cada autor"""
+        """Retorna o filme de maior score para cada combinação autor categoria"""
         movies = (
-            Movie.objects.values("title", "main_author__name")
-            .annotate(best_movie=Max("score"))
-            .order_by("-best_movie", "title")
+            Movie.objects.values(
+                "category__category_name", "title", "main_author__name", "score"
+            )
+            .order_by("category", "main_author__name", "-score")
+            .distinct("category", "main_author__name")
         )
         return movies
 
     class Meta:
         model = Author
-        fields = ("author_best_movie",)
+        fields = ("author_best_movie", "author_worst_movie")
