@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db.models import Q
 
 from rest_framework import generics, status
@@ -13,7 +15,7 @@ from movie.serializers import (
 )
 
 
-def verify_request(request):
+def verify_request(request: dict) -> bool:
     if request.method == "POST":
         if (
             "title" not in request.data
@@ -42,7 +44,7 @@ def verify_request(request):
 class MovieListCreateView(generics.ListCreateAPIView):
     serializer_class = MovieSerializer
 
-    def movie_filters(self, request) -> Q:
+    def movie_filters(self, request: dict) -> Q:
         title = request.query_params.get("title", None)
         category = request.query_params.get("category", None)
         publication_date = request.query_params.get("publication_date", None)
@@ -62,7 +64,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
             filters &= Q(publication_date=publication_date)
         return filters
 
-    def person_filters(self, request) -> Q:
+    def person_filters(self, request: dict) -> Q:
         actor_name = request.query_params.get("actor_name", None)
         author_name = request.query_params.get("author_name", None)
         if not ((actor_name is not None) or (author_name is not None)):
@@ -74,7 +76,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
             filters &= Q(main_author__name=author_name)
         return filters
 
-    def post(self, request) -> Response:
+    def post(self, request: dict) -> Response:
         if verify_request(request):
             serializer = MovieSerializer(data=request.data)
             if serializer.is_valid():
@@ -88,7 +90,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
                 f"Invalid Request!", status=status.HTTP_400_BAD_REQUEST
             )
 
-    def get(self, request) -> Response:
+    def get(self, request: dict) -> Response:
         movie_filters = self.movie_filters(request)
         person_filters = self.person_filters(request)
         filters_person = Q()
@@ -116,7 +118,7 @@ class MovieListCreateView(generics.ListCreateAPIView):
 class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MovieDetailSerializer
 
-    def get(self, request, movie_id: int = None) -> Response:
+    def get(self, request: dict, movie_id: int = None) -> Response:
         try:
             movie_detail = Movie.objects.get(id=movie_id)
         except Movie.DoesNotExist:
@@ -126,7 +128,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         serializer_class = MovieDetailSerializer(movie_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
-    def patch(self, request, movie_id: int = None) -> Response:
+    def patch(self, request: dict, movie_id: int = None) -> Response:
         if not verify_request(request):
             return Response(
                 f"No field has been informed!",
@@ -180,7 +182,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
         )
 
-    def delete(self, request, movie_id: int = None) -> Response:
+    def delete(self, request: dict, movie_id: int = None) -> Response:
         try:
             movie_detail = Movie.objects.get(id=movie_id)
         except Movie.DoesNotExist:
@@ -202,7 +204,7 @@ class MovieRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class CategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
 
-    def get(self, request) -> Response:
+    def get(self, request: dict) -> Response:
         categories = Category.objects.all()
         if len(categories) == 0:
             return Response(
@@ -211,7 +213,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
         serializer_class = CategorySerializer(categories, many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
-    def post(self, request) -> Response:
+    def post(self, request: dict) -> Response:
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -222,7 +224,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
 class AddActorToMovieView(generics.CreateAPIView):
     serializer_class = MovieSerializer
 
-    def post(self, request, movie_id: int = None) -> Response:
+    def post(self, request: dict, movie_id: int = None) -> Response:
         try:
             movie = Movie.objects.get(id=movie_id)
         except Movie.DoesNotExist:
@@ -258,7 +260,7 @@ class AddActorToMovieView(generics.CreateAPIView):
 class AddAuthorToMovieView(generics.CreateAPIView):
     serializer_class = MovieSerializer
 
-    def post(self, request, movie_id: int = None) -> Response:
+    def post(self, request: dict, movie_id: int = None) -> Response:
         try:
             movie = Movie.objects.get(id=movie_id)
         except Movie.DoesNotExist:
@@ -294,7 +296,7 @@ class AddAuthorToMovieView(generics.CreateAPIView):
 class MovieStatisticView(generics.RetrieveAPIView):
     serializer_class = MovieStatisticSerializer
 
-    def get(self, request) -> Response:
+    def get(self, request: dict) -> Response:
         movies = Movie.objects.all()
         serializer_class = MovieStatisticSerializer(movies, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)

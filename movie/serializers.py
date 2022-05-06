@@ -1,12 +1,13 @@
 import json
+from typing import Union
 
 from django.db.models import Count
 from django.db.models.aggregates import StdDev
+from django.db.models.query import QuerySet
 
 from rest_framework import serializers
 
 from movie.models import Category, Movie
-from person.models import Actor, Author
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -43,14 +44,14 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     amount_author_female = serializers.SerializerMethodField()
     amount_author_male = serializers.SerializerMethodField()
 
-    def get_amount_author_female(self, obj):
+    def get_amount_author_female(self, obj: Movie) -> dict:
         """Retorna o número de autores do sexo feminino para este filme"""
         amount_author = Movie.objects.filter(
             id=obj.id, main_author__genre=1
         ).aggregate(Count("main_author"))
         return amount_author
 
-    def get_amount_author_male(self, obj):
+    def get_amount_author_male(self, obj: Movie) -> dict:
         """Retorna o número de autores do sexo masculino para este filme"""
         amount_author = Movie.objects.filter(
             id=obj.id, main_author__genre=2
@@ -71,7 +72,7 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
     general_standard_deviation = serializers.SerializerMethodField()
     standard_deviation_by_category = serializers.SerializerMethodField()
 
-    def get_standard_deviation_by_category(self, obj):
+    def get_standard_deviation_by_category(self, obj: Movie) -> dict:
         """Retorna o desvio padrão de score por categoria"""
         movies = Movie.objects.values("category__category_name").annotate(
             Standard_deviation=StdDev("score")
@@ -81,14 +82,14 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
                 movie["Standard_deviation"] = 0
         return movies
 
-    def get_general_standard_deviation(self, obj):
+    def get_general_standard_deviation(self, obj: Movie) -> QuerySet:
         """Retorna o desvio padrão de score"""
         movies = Movie.objects.all().aggregate(
             Standard_deviation=StdDev("score")
         )
         return movies
 
-    def get_worst_movies_category(self, obj):
+    def get_worst_movies_category(self, obj: Movie) -> QuerySet:
         """Retorna a pior nota de cada categoria"""
         movies = (
             Movie.objects.values("category__category_name", "title", "score")
@@ -97,7 +98,7 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
         )
         return movies
 
-    def get_best_movies_category(self, obj):
+    def get_best_movies_category(self, obj: Movie) -> QuerySet:
         """Retorna a melhor nota de cada categoria"""
         movies = (
             Movie.objects.values("category__category_name", "title", "score")
@@ -106,7 +107,7 @@ class MovieStatisticSerializer(serializers.ModelSerializer):
         )
         return movies
 
-    def get_amount_movies_category(self, obj):
+    def get_amount_movies_category(self, obj) -> QuerySet:
         """Retorna o número de filmes cadastrado de cada categoria"""
         movies = Movie.objects.values("category__category_name").annotate(
             amount=Count("title")
