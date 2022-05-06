@@ -16,12 +16,12 @@ from person.serializers import (
 class AuthorListCreateView(generics.ListCreateAPIView):
     serializer_class = AuthorSerializer
 
-    def get(self, request):
+    def get(self, request: dict) -> Response:
         authors = Author.objects.all()
         serializer_class = AuthorSerializer(authors, many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    def post(self, request: dict) -> Response:
         serializer_class = AuthorSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
@@ -34,12 +34,12 @@ class AuthorListCreateView(generics.ListCreateAPIView):
 class AuthorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AuthorDetailSerializer
 
-    def get(self, request, author_id: int = None):
+    def get(self, request: dict, author_id: int = None) -> Response:
         author_detail = Author.objects.get(id=author_id)
         serializer_class = AuthorDetailSerializer(author_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
-    def patch(self, request, author_id: int = None):
+    def patch(self, request: dict, author_id: int = None) -> Response:
         try:
             name = request.data["name"]
             genre = request.data["genre"]
@@ -67,7 +67,7 @@ class AuthorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
         )
 
-    def delete(self, request, author_id: int = None):
+    def delete(self, request: dict, author_id: int = None) -> Response:
         try:
             author = Author.objects.get(id=author_id)
         except Author.DoesNotExist:
@@ -89,12 +89,12 @@ class AuthorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ActorListCreateView(generics.ListCreateAPIView):
     serializer_class = ActorSerializer
 
-    def get(self, request):
+    def get(self, request: dict) -> Response:
         actors = Actor.objects.all()
         serializer_class = ActorSerializer(actors, many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    def post(self, request: dict) -> Response:
         serializer_class = ActorSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
@@ -109,12 +109,12 @@ class ActorListCreateView(generics.ListCreateAPIView):
 class ActorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ActorDetailSerializer
 
-    def get(self, request, actor_id: int = None):
+    def get(self, request: dict, actor_id: int = None) -> Response:
         actor_detail = Actor.objects.get(id=actor_id)
         serializer_class = ActorDetailSerializer(actor_detail, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
-    def patch(self, request, actor_id: int = None):
+    def patch(self, request: dict, actor_id: int = None) -> Response:
         try:
             name = request.data["name"]
             genre = request.data["genre"]
@@ -142,7 +142,7 @@ class ActorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             serializer_class.errors, status=status.HTTP_400_BAD_REQUEST
         )
 
-    def delete(self, request, actor_id: int = None):
+    def delete(self, request: dict, actor_id: int = None) -> Response:
         try:
             actor_detail = Actor.objects.get(id=actor_id)
         except Actor.DoesNotExist:
@@ -164,7 +164,7 @@ class ActorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class AuthorStatisticView(generics.RetrieveAPIView):
     serializer_class = AuthorStatisticSerializer
 
-    def get(self, request) -> Response:
+    def get(self, request: dict) -> Response:
         movies = Movie.objects.all()
         serializer_class = AuthorStatisticSerializer(movies, many=False)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
