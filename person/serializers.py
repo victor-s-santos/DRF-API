@@ -1,4 +1,5 @@
 from django.db.models.aggregates import StdDev
+from django.db.models.query import QuerySet
 
 from rest_framework import serializers
 
@@ -20,7 +21,7 @@ class ActorDetailSerializer(serializers.ModelSerializer):
     genre = serializers.ReadOnlyField(source="get_genre_display")
     count_works = serializers.SerializerMethodField()
 
-    def get_count_works(self, obj):
+    def get_count_works(self, obj) -> int:
         """Retorna o número de trabalhos que o ator fez"""
         count_works = Movie.objects.filter(main_actor=obj.id).count()
         return count_works
@@ -55,17 +56,17 @@ class AuthorStatisticSerializer(serializers.ModelSerializer):
     author_worst_movie = serializers.SerializerMethodField()
     standard_deviation_by_author = serializers.SerializerMethodField()
 
-    def get_standard_deviation_by_author(self, obj):
+    def get_standard_deviation_by_author(self, obj: Author) -> float:
         """Retorna o desvio padrão de score por autor"""
         movies = Movie.objects.values("main_author__name").annotate(
             Standard_deviation=StdDev("score")
         )
         for movie in movies:
             if not (movie["Standard_deviation"]):
-                movie["Standard_deviation"] = 0
+                movie["Standard_deviation"] = 0.0
         return movies
 
-    def get_author_worst_movie(self, obj):
+    def get_author_worst_movie(self, obj: Author) -> QuerySet:
         """Retorna o filme de menor score para cada combinação autor categoria"""
         movies = (
             Movie.objects.values(
@@ -76,7 +77,7 @@ class AuthorStatisticSerializer(serializers.ModelSerializer):
         )
         return movies
 
-    def get_author_best_movie(self, obj):
+    def get_author_best_movie(self, obj: Author) -> QuerySet:
         """Retorna o filme de maior score para cada combinação autor categoria"""
         movies = (
             Movie.objects.values(

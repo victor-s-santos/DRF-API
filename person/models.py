@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 
 
@@ -9,7 +11,7 @@ class Author(models.Model):
     nationality = models.CharField(max_length=200)
 
     @property
-    def score_average(self):
+    def score_average(self) -> Union[str, int]:
         """average score of the films this author worked on"""
         author = Author.objects.get(id=self.id)
         try:
